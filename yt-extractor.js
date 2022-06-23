@@ -1,9 +1,7 @@
 // ==UserScript==
 // @name         yt-extractor
-// @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.0
 // @description  try to take over the world!
-// @author       You
 // @match        https://www.youtube.com/watch?v=*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        GM_setClipboard
