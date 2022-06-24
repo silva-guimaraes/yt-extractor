@@ -7,6 +7,7 @@
 // @grant        GM_setClipboard
 // ==/UserScript==
 
+// todo:
 // criar uma caixa pra exibir as legendas enquanto o video avança
 // fazer com oque o script funcione em todos os videos novos que sejam abertos
 // seleção de legendas
@@ -20,8 +21,6 @@ async function make_request(url) {
     return response.text();
 } 
 
-//https://github.com/kyamashiro/youtube-subtitle-download-helper
-//funciona por enquanto
 function parse_request(html) {
     const captions = /\{"captionTracks":(\[.*?\]),/g.exec(html); 
     if (!captions) {
@@ -53,15 +52,17 @@ function wait_element(selector) {
 
     make_request(document.URL)
 	.then(request => { 
-	    let i = parse_request(request); 
-	    i = i.find(sub => sub.languageCode == default_lang);
+	    // as legendas de um video do youtube vem de uma api diferente da api padrão que o google disponibiliza
+	    // o html da pagina inclui uma ou mais URLs apontando pras legendas formatadas em xml 
+	    // https://github.com/kyamashiro/youtube-subtitle-download-helper/blob/1b163e0da317e6839512812e82af6818d4875c2c/src/parser/videoInformationParser.ts#L4
 
-	    //console.log(i);
+	    let i = parse_request(request); 
+	    i = i.find(sub => sub.languageCode == default_lang); 
+
 	    return make_request(i.baseUrl)})
 	.then(xml_string => { 
 	    let xml = new DOMParser().parseFromString(xml_string, "text/xml"),
 		subs = Array.from(xml.querySelector("transcript").children);
-	    console.log(xml);
 
 	    wait_element("video")
 		.then(video => {
@@ -90,6 +91,7 @@ function wait_element(selector) {
 		});
 	}).catch(error => console.log(error)); 
 
+    // todo
     wait_element("#secondary-inner")
 	.then(secondary => {
 	    let teste = document.createElement("h3");
@@ -100,5 +102,4 @@ function wait_element(selector) {
 	}).catch(error => console.log(error));
 
 
-    // https://stackoverflow.com/a/46924698
 })();
