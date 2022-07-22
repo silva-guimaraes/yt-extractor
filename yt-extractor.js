@@ -56,10 +56,13 @@ function wait_element(selector) {
 	    // o html da pagina inclui uma ou mais URLs apontando pras legendas formatadas em xml 
 	    // https://github.com/kyamashiro/youtube-subtitle-download-helper/blob/1b163e0da317e6839512812e82af6818d4875c2c/src/parser/videoInformationParser.ts#L4
 
-	    let i = parse_request(request); 
-	    i = i.find(sub => sub.languageCode == default_lang); 
+	    let subs = parse_request(request); 
 
-	    return make_request(i.baseUrl)})
+	    let ret = subs.find(sub => sub.languageCode == default_lang); // selecionar legenda padrão
+	    if (ret == null)
+		ret = subs[0];
+
+	    return make_request(ret.baseUrl)})
 	.then(xml_string => { 
 	    let xml = new DOMParser().parseFromString(xml_string, "text/xml"),
 		subs = Array.from(xml.querySelector("transcript").children);
@@ -70,7 +73,8 @@ function wait_element(selector) {
 		    let display_subtitle = function () {
 			let current = null; 
 			// legendas geradas pelo youtube tendem sobrepor umas as outras
-			for (var i = subs.length - 1; i >= 0; i--){ //FIXME: qualquer coisa alem de linear search por favor
+			// iterar do inicio até o fim as vezes ignora legendas sendo sobrepostas por outra legenda
+			for (var i = subs.length - 1; i >= 0; i--){ // iterar do fim até o inicio
 			    let start = parseInt(subs[i].getAttribute("start"));
 			    let end = start + parseInt(subs[i].getAttribute("dur"));
 
